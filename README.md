@@ -15,7 +15,7 @@
 
 This project is an **Enterprise Selenium Cucumber Hybrid Automation Framework** developed using **Java, Selenium WebDriver, Cucumber, JUnit, Maven, and the Page Object Model (POM)**.
 
-The framework is designed to be **scalable, reusable, maintainable, and data-driven**, following industry best practices for UI test automation.
+The framework is designed to be **scalable, reusable and maintainable**, following industry best practices for UI test automation.
 
 The application under test is **Automation Exercise**.
 
@@ -30,7 +30,6 @@ The application under test is **Automation Exercise**.
 | Cucumber | Behaviour Driven Development (BDD) |
 | JUnit | Test Execution |
 | Maven | Build & Dependency Management |
-| Apache POI | Excel Data Handling |
 | Log4j2 | Logging |
 | Extent Reports | HTML Reporting |
 | Git & GitHub | Version Control |
@@ -104,9 +103,8 @@ The framework follows a layered architecture to promote maintainability and code
 
 ### Utilities
 
-- WebActions
+- EnvironemntUtils
 - WaitUtils
-- ExcelUtils
 - TestDataReader
 - ScreenshotUtils
 - LoggerUtils
@@ -125,7 +123,6 @@ The framework follows a layered architecture to promote maintainability and code
 - Base Page Design
 - Singleton Pattern (Extent Reports)
 - Utility Class Pattern
-- Data-Driven Testing
 - ThreadLocal (Extent Report Management)
 
 ---
@@ -156,11 +153,8 @@ The framework follows a layered architecture to promote maintainability and code
 # Framework Features
 
 - Behaviour Driven Development (BDD)
-- JUnit-based execution
 - Page Object Model (POM)
-- Reusable WebActions utility
-- Data-Driven Testing using Excel
-- Dynamic Email Generation for Registration
+- Reusable WebActions Utility
 - Centralized Configuration Management
 - Explicit Wait Utilities
 - Log4j2 Logging
@@ -172,25 +166,6 @@ The framework follows a layered architecture to promote maintainability and code
 - Reusable Hooks for Test Setup & Cleanup
 - Maven Build Support
 - Modular Framework Design
-- Easy to Extend
-
----
-
-# Test Data
-
-The framework uses **Microsoft Excel** for Data-Driven Testing.
-
-Current Excel Sheets:
-
-- Signup
-- Products
-
-Each sheet supports:
-
-- Test Case ID
-- Execute Flag (Y/N)
-- Test Data
-- Dynamic Email Generation
 
 ---
 
