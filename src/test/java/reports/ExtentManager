@@ -1,0 +1,69 @@
+package reports;
+
+import java.io.File;
+
+import org.apache.logging.log4j.Logger;
+
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.reporter.ExtentSparkReporter;
+
+import utilities.ConfigReader;
+import utilities.LoggerUtils;
+
+public class ExtentManager {
+
+    // Singleton instance of ExtentReports
+    private static ExtentReports extent;
+
+    // Logger instance for logging report generation details
+    private static final Logger logger = LoggerUtils.getLogger(ExtentManager.class);
+
+    /**
+     * Returns a single instance of ExtentReports.
+     * Creates the report only once during the test execution.
+     */
+    public static ExtentReports getInstance() {
+
+        // Create Extent Report instance if it doesn't already exist
+        if (extent == null) {
+
+            // Create report directory if it is not present
+            File reportDir = new File("extent-reports");
+
+            if (!reportDir.exists()) {
+                reportDir.mkdirs();
+            }
+
+            // Define the complete path for the HTML report
+            String reportPath = reportDir.getAbsolutePath()
+                    + File.separator
+                    + "ExtentReport.html";
+
+            // Log the report location for debugging/reference
+            logger.info("Extent Report Location : {}", reportPath);
+
+            // Configure the Spark HTML Reporter
+            ExtentSparkReporter reporter =
+                    new ExtentSparkReporter(reportPath);
+
+            // Set report display name
+            reporter.config().setReportName("Automation Test Execution Report");
+
+            // Set browser tab title
+            reporter.config().setDocumentTitle("Automation Framework Report");
+
+            // Create ExtentReports object and attach the reporter
+            extent = new ExtentReports();
+            extent.attachReporter(reporter);
+
+            // Add execution details to the report
+            extent.setSystemInfo("Framework", "Selenium Java + Cucumber");
+            extent.setSystemInfo("Author", "Dishi Gogia");
+            extent.setSystemInfo("Environment",
+                    ConfigReader.getProperty("environment"));
+        }
+
+        // Return the singleton ExtentReports instance
+        return extent;
+    }
+}
