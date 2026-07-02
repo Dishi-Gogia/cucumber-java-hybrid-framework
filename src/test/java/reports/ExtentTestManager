@@ -1,0 +1,66 @@
+package reports;
+
+import com.aventstack.extentreports.ExtentTest;
+
+/**
+ * ===========================================================================
+ * Extent Test Manager
+ * ===========================================================================
+ *
+ * Purpose:
+ * Maintains a separate ExtentTest instance for each executing thread.
+ *
+ * Why ThreadLocal?
+ * Each test/scenario gets its own ExtentTest object, preventing logs from
+ * different executions from overlapping during parallel execution.
+ *
+ * Responsibilities:
+ * - Store ExtentTest instance
+ * - Retrieve current ExtentTest
+ * - Remove ExtentTest after execution
+ *
+ * ===========================================================================
+ */
+public final class ExtentTestManager {
+
+    /**
+     * Thread-safe ExtentTest instance.
+     */
+    private static final ThreadLocal<ExtentTest> extentTest =
+            new ThreadLocal<>();
+
+    /**
+     * Private constructor to prevent object creation.
+     */
+    private ExtentTestManager() {
+        // Utility class
+    }
+
+    /**
+     * Stores the ExtentTest instance for the current thread.
+     * @param test Current ExtentTest instance
+     */
+    public static void setTest(ExtentTest test) {
+        extentTest.set(test);
+
+    }
+
+    /**
+     * Returns the ExtentTest instance for the current thread.
+     * @return Current ExtentTest
+     */
+    public static ExtentTest getTest() {
+        return extentTest.get();
+
+    }
+
+    /**
+     * Removes the ExtentTest instance after test execution.
+     * Prevents memory leaks in parallel execution.
+     */
+    public static void unload() {
+        extentTest.remove();
+
+    }
+
+}
