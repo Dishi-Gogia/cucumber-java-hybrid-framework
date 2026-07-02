@@ -1,0 +1,120 @@
+package hooks;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.logging.log4j.Logger;
+
+import com.aventstack.extentreports.ExtentTest;
+
+import base.BaseTest;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.Scenario;
+import reports.ExtentManager;
+import reports.ExtentTestManager;
+import utilities.LoggerUtils;
+import utilities.ScreenshotUtils;
+
+public class Hooks extends BaseTest {
+
+    // Logger instance for Hooks class
+    private static final Logger logger =
+            LoggerUtils.getLogger(Hooks.class);
+
+    /**
+     * Executes before every scenario.
+     * Initializes browser and creates Extent Report test entry.
+     * @throws InterruptedException 
+     */
+    @Before
+    public void setup(Scenario scenario) throws IOException, InterruptedException {
+
+        logger.info("=================================================");
+        logger.info("Starting Scenario : {}", scenario.getName());
+        logger.info("=================================================");
+
+        // Launch browser and navigate to application
+        initializeDriver();
+
+        logger.info("Creating Extent Report entry for scenario.");
+
+        // Create test node in Extent Report
+        ExtentTest test = ExtentManager.getInstance().createTest(scenario.getName());
+
+        // Store ExtentTest object in ThreadLocal
+        ExtentTestManager.setTest(test);
+
+        logger.info("Scenario setup completed successfully.");
+    }
+
+    /**
+     * Executes after every scenario.
+     * Captures screenshot on failure, updates Extent Report,
+     * closes browser and flushes report.
+     */
+    @After
+    public void tearDown(Scenario scenario) {
+
+        logger.info("Executing TearDown for Scenario : {}", scenario.getName());
+        logger.info("Scenario Status : {}", scenario.getStatus());
+
+        // Execute when scenario fails
+        if (scenario.isFailed()) {
+            logger.error("Scenario Failed : {}", scenario.getName());
+
+            // Capture screenshot and save to project
+            String screenshotPath = ScreenshotUtils.captureScreenshot(BaseTest.getDriver(),scenario.getName());
+
+            logger.info("Screenshot captured successfully.");
+
+            // Attach screenshot to Extent Report
+            ExtentTestManager.getTest().fail("Scenario Failed : " + scenario.getName())
+            		.addScreenCaptureFromPath( "../screenshots/" + new File(screenshotPath).getName());
+
+            // Attach screenshot to Cucumber Report
+            scenario.attach(ScreenshotUtils.captureScreenshotAsBytes(BaseTest.getDriver()),
+                    "image/png",scenario.getName());
+
+            logger.info("Screenshot attached to Extent and Cucumber reports.");
+
+        } else {
+        	 logger.info("Scenario Passed : {}", scenario.getName());
+
+        	    // Capture screenshot
+        	    String screenshotPath = ScreenshotUtils.captureScreenshot(
+        	            BaseTest.getDriver(), scenario.getName());
+
+        	    logger.info("Screenshot captured successfully.");
+
+        	    // Attach to Extent Report
+        	    ExtentTestManager.getTest()
+        	            .pass("Scenario Passed : " + scenario.getName())
+        	            .addScreenCaptureFromPath(screenshotPath);
+
+        	    // Attach to Cucumber Report
+        	    scenario.attach(
+        	            ScreenshotUtils.captureScreenshotAsBytes(BaseTest.getDriver()),
+        	            "image/png",
+        	            scenario.getName());
+
+        	    logger.info("Screenshot attached to Extent and Cucumber reports.");
+        }
+
+        // Close browser
+        logger.info("Closing browser.");
+        closeDriver();
+
+        // Write execution results to Extent Report
+        logger.info("Flushing Extent Report.");
+        ExtentManager.getInstance().flush();
+        
+        System.out.println("Extent Report Generated Successfully.");
+        
+        // Clear ThreadLocal object
+        ExtentTestManager.unload();
+
+        logger.info("Scenario execution completed.");
+        logger.info("=================================================\n");
+    }
+}
