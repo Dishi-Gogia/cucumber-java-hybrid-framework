@@ -1,0 +1,27 @@
+package pages;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.PageFactory;
+
+import utilities.WebActions;
+
+/**
+ * Base Page for all Page Objects.
+ * Contains common initialization logic and reusable utilities.
+ */
+public class BasePage {
+
+    protected WebDriver driver;
+    protected WebActions actions;
+
+    /**
+     * Constructor initializes page elements and common utilities.
+     *
+     * @param driver WebDriver instance
+     */
+    public BasePage(WebDriver driver) {
+        this.driver = driver;
+        PageFactory.initElements(driver, this);
+        actions = new WebActions(driver);
+    }
+}
