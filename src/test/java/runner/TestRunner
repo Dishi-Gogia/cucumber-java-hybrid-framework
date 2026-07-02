@@ -1,0 +1,53 @@
+package runner;
+
+import org.junit.runner.RunWith;
+
+import io.cucumber.junit.Cucumber;
+import io.cucumber.junit.CucumberOptions;
+
+/**
+ * ===========================================================================
+ * Test Runner
+ * ===========================================================================
+ *
+ * Purpose:
+ * Entry point for Cucumber execution.
+ *
+ * Responsibilities:
+ * - Locate Feature Files
+ * - Locate Step Definitions & Hooks
+ * - Configure Reports
+ * - Configure Tags
+ * - Integrate Cucumber with JUnit
+ *
+ * ===========================================================================
+ */
+
+@RunWith(Cucumber.class)
+@CucumberOptions(
+
+        features = "src/test/resources/features",
+
+        glue = {
+                "stepdefinitions",
+                "hooks"
+        },
+
+        plugin = {
+                "pretty",
+                "html:target/cucumber-reports/CucumberReport.html",
+                "json:target/cucumber-reports/CucumberReport.json",
+                "junit:target/cucumber-reports/CucumberReport.xml"
+        },
+
+        monochrome = true,
+
+        publish = false,
+
+        tags = "@smoke"
+
+)
+
+public class TestRunner {
+
+}
