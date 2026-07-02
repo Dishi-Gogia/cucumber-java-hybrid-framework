@@ -1,0 +1,181 @@
+package base;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
+import java.time.Duration;
+import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Platform;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+
+import utilities.ConfigReader;
+import utilities.LoggerUtils;
+import utilities.WaitUtils;
+
+public class BaseTest {
+
+    // Static WebDriver instance shared across the framework
+    private static WebDriver driver;
+
+    // Log4j Logger
+    private static final Logger logger =LoggerUtils.getLogger(BaseTest.class);
+
+    /**
+     * Initializes WebDriver based on the configuration.
+     * Supports both Local and Selenium Grid execution.
+     * @throws InterruptedException 
+     */
+    public void initializeDriver() throws IOException, InterruptedException {
+
+        logger.info("========== Test Execution Started ==========");
+
+        // Read execution details from config.properties
+        String execEnv = ConfigReader.getProperty("Execution_env");
+        String browser = ConfigReader.getProperty("browser");
+        String os = ConfigReader.getProperty("os");
+        String url = ConfigReader.getProperty("URL");
+
+        logger.info("Execution Environment : {}", execEnv);
+        logger.info("Operating System      : {}", os);
+        logger.info("Browser              : {}", browser);
+        logger.info("Application URL      : {}", url);
+
+        // ==========================
+        // Remote Execution (Grid)
+        // ==========================
+        if ("remote".equalsIgnoreCase(execEnv)) {
+
+            logger.info("Initializing Remote WebDriver...");
+
+            DesiredCapabilities capabilities = new DesiredCapabilities();
+
+            // Select Operating System
+            if (os.equalsIgnoreCase("windows")) {
+                capabilities.setPlatform(Platform.WIN11);
+                logger.info("Platform selected : Windows 11");
+
+            } else if (os.equalsIgnoreCase("mac")) {
+                capabilities.setPlatform(Platform.MAC);
+                logger.info("Platform selected : macOS");
+
+            } else {
+                logger.error("Invalid Operating System: {}", os);
+                return;
+            }
+
+            // Select Browser
+            switch (browser.toLowerCase()) {
+
+                case "chrome":
+                    capabilities.setBrowserName("chrome");
+                    logger.info("Browser selected : Chrome");
+                    break;
+
+                case "edge":
+                    capabilities.setBrowserName("MicrosoftEdge");
+                    logger.info("Browser selected : Edge");
+                    break;
+
+                case "firefox":
+                    capabilities.setBrowserName("firefox");
+                    logger.info("Browser selected : Firefox");
+                    break;
+
+                default:
+                    logger.error("Invalid Browser Name : {}", browser);
+                    return;
+            }
+
+            // Selenium Grid URL
+            URI gridUri = URI.create("http://localhost:4444/wd/hub");
+            URL gridUrl = gridUri.toURL();
+
+            // Launch Remote Browser
+            driver = new RemoteWebDriver(gridUrl, capabilities);
+
+            logger.info("Remote Browser launched successfully.");
+
+        }
+
+        // ==========================
+        // Local Execution
+        // ==========================
+        else if ("local".equalsIgnoreCase(execEnv)) {
+
+            logger.info("Initializing Local WebDriver...");
+
+            switch (browser.toLowerCase()) {
+
+                case "chrome":
+                    driver = new ChromeDriver();
+                    logger.info("Chrome Browser launched.");
+                    break;
+
+                case "edge":
+                    driver = new EdgeDriver();
+                    logger.info("Edge Browser launched.");
+                    break;
+
+                case "firefox":
+                    driver = new FirefoxDriver();
+                    logger.info("Firefox Browser launched.");
+                    break;
+
+                default:
+                    logger.error("Invalid Browser Name : {}", browser);
+                    return;
+            }
+        }
+
+        // Invalid execution environment
+        else {
+            logger.error("Invalid Execution Environment : {}", execEnv);
+            return;
+        }
+
+        // ==========================
+        // Browser Configuration
+        // ==========================
+        logger.info("Applying browser configurations...");
+
+        driver.manage().deleteAllCookies();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+        logger.info("Navigating to application : {}", url);
+        driver.get(url);
+        WebElement  homePageLogo= driver.findElement(By.xpath("//img[@alt='Website for automation practice']"));
+        WaitUtils.waitForVisibility(driver, homePageLogo);
+       // closeGoogleAdIfPresent();
+        driver.manage().window().maximize();
+        logger.info("Browser launched successfully and application opened.");
+    }
+
+    /**
+     * Closes browser and releases WebDriver instance.
+     */
+    public void closeDriver() {
+        if (driver != null) {
+            logger.info("Closing Browser...");
+            driver.quit();
+            driver = null;
+            logger.info("Browser closed successfully.");
+            logger.info("========== Test Execution Finished ==========");
+        }
+    }
+
+    /**
+     * Returns current WebDriver instance.
+     * @return WebDriver
+     */
+    public static WebDriver getDriver() {
+        return driver;
+    }
+    
+}
